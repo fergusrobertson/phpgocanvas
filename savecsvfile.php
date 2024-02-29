@@ -10,11 +10,11 @@ $username = "{gocanvasusername}";
 $password = "{gocanvaspassword}";
 $csv_file_path = '{pathonservertosavefileto}' . $csv_filename;
 
-// Add an extra 5 minutes (300) to account for the program lag
-$timenow = time() + 300;
+// Grab the current time in seconds
+$timenow = time();
 
-// Calculate the time minus 12 hours, 13 hours, 1 hour, 15 minutes, and 30 minutes
-$tminus30mins = $timenow - 1830;
+// add 30 mins to it
+$tminus30mins = $timenow - 1800;
 
 // Construct the URL to the GoCanvas CSV API
 $url = "https://www.gocanvas.com/apiv2/csv.xml?form_id=" . $form_id . "&begin_second=" . $tminus30mins . "&end_second=" . $timenow . "&username=" . $username . "&password=" . $password;
