@@ -1,36 +1,34 @@
 <?php
 
-// Declare variables
-$form_id = {formid};
-$webhook_url = "{webhookurl};
-$csv_filename = {yourcsvfilename.csv}";
+// Define constants for sensitive data (improve security)
+define('GOCANVAS_FORM_ID', '{formid}');
+define('WEBHOOK_URL', '{webhookurl}');
+define('CSV_FILENAME', 'yourcsvfilename.csv');
 
+// Credentials (replace with actual values)
+$username = '{gocanvasusername}';
+$password = '{gocanvaspassword}';
 
-$username = "{gocanvasusername}";
-$password = "{gocanvaspassword}";
-$csv_file_path = '{pathonservertosavefileto}' . $csv_filename;
+// Construct file path dynamically
+$csv_file_path = __DIR__ . '/' . CSV_FILENAME; // Use __DIR__ for current directory path
 
-// Grab the current time in seconds
-$timenow = time();
+// Calculate time window
+$now = time();
+$past30Mins = $now - 1800;
 
-// add 30 mins to it
-$tminus30mins = $timenow - 1800;
+// Build GoCanvas API URL
+$url = "https://www.gocanvas.com/apiv2/csv.xml?form_id=" . GOCANVAS_FORM_ID . "&begin_second=" . $past30Mins . "&end_second=" . $now . "&username=" . $username . "&password=" . $password;
 
-// Construct the URL to the GoCanvas CSV API
-$url = "https://www.gocanvas.com/apiv2/csv.xml?form_id=" . $form_id . "&begin_second=" . $tminus30mins . "&end_second=" . $timenow . "&username=" . $username . "&password=" . $password;
+// Fetch and save CSV data
+$csvData = file_get_contents($url);
+file_put_contents($csv_file_path, $csvData);
 
-// Get the CSV data from GoCanvas
-$source = file_get_contents($url);
-
-// Save the CSV data to the local filesystem
-file_put_contents($csv_file_path, $source);
-
-// Check if the file exists and is not empty
+// Send webhook notification if file exists and is not empty
 if (file_exists($csv_file_path) && filesize($csv_file_path) > 0) {
-  // Send a webhook to Make.com to trigger your workflow
-  $ch = curl_init($webhook_url);
-  curl_exec($ch);
-  curl_close($ch);
+    $ch = curl_init(WEBHOOK_URL);
+    curl_exec($ch);
+    curl_close($ch);
 }
 
 ?>
+
